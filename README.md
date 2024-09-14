@@ -39,7 +39,7 @@ The system is composed of the following services:
 ## Setup and Installation
 1. Clone the Repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/AmirRB/micro-service-order-management-system.git
 cd order-management-system
 ```
 
