@@ -1,0 +1,78 @@
+
+
+services:
+  order-service:
+    build: ./order
+    networks:
+      - order-net
+    depends_on:
+      - rabbitmq
+      - mysql
+    environment:
+        spring.profiles.active: pro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8082/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: on-failure
+
+  inventory-service:
+    build: ./inventory
+    networks:
+      - order-net
+    depends_on:
+      - rabbitmq
+      - mysql
+    environment:
+        spring.profiles.active: pro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8082/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: on-failure
+        
+
+  shipping-service:
+    build: ./shipping
+    networks:
+      - order-net
+    depends_on:
+      - rabbitmq
+    environment:
+        spring.profiles.active: pro
+
+  gateway:
+    build: ./gateway
+    ports:
+      - "8080:8080"
+    networks:
+      - order-net
+    depends_on:
+      - order-service
+      - inventory-service
+      - shipping-service
+    environment:
+        spring.profiles.active: pro
+
+  rabbitmq:
+    image: rabbitmq:4.0.0-rc.1-management-alpine
+    networks:
+      - order-net
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: orderdb
+    networks:
+      - order-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+
+networks:
+  order-net:
+    driver: bridge

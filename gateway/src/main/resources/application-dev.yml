@@ -1,0 +1,17 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  cloud:
+    gateway:  # Enables dynamic routing based on service discovery
+      routes:
+        - id: order
+          uri: http://localhost:8082  # Load-balanced URI
+          predicates:
+            - Path=/orders/**
+
+        - id: inventory-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/inventory/**

@@ -1,0 +1,17 @@
+spring:
+  config:
+    activate:
+      on-profile: pro
+
+  cloud:
+    gateway:
+      routes:
+        - id: order
+          uri: http://order-service:8082  # Load-balanced URI
+          predicates:
+            - Path=/orders/**
+
+        - id: inventory-service
+          uri: http://inventory-service:8081
+          predicates:
+            - Path=/inventory/**
